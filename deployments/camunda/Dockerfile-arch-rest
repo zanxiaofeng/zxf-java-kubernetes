@@ -1,0 +1,9 @@
+FROM openjdk:17-jdk-alpine
+
+WORKDIR /app
+
+COPY ../../../zxf-springboot-camunda/zxf-springboot-camunda-arch-rest/target/zxf-springboot-camunda-arch-rest-1.0.0-SNAPSHOT.jar my-app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-XX:+UseG1GC", "-Xms256M", "-Xmx1024M", "-XshowSettings", "-XX:+PrintFlagsFinal", "-XX:NativeMemoryTracking=detail","-jar", "/my-app.jar"]

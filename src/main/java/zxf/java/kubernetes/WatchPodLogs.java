@@ -7,7 +7,7 @@ public class WatchPodLogs {
     private static final String DEFAULT_NAMESPACE = "default";
 
     public static void main(String[] args) {
-        watchLog("zxf-java-memory-app-6cb76bb7db-2856k");
+        watchLog("zxf-java-memory-app-859bf4d8d4-4zr2g");
     }
 
     private static void watchLog(String pod) {

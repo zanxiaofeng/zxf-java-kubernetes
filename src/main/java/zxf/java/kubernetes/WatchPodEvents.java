@@ -14,12 +14,10 @@ public class WatchPodEvents {
             client.pods().inAnyNamespace().watch(new Watcher<Pod>() {
                 @Override
                 public void eventReceived(Action action, Pod pod) {
-                    // 处理 Pod 事件
                     String podName = pod.getMetadata().getName();
                     String namespace = pod.getMetadata().getNamespace();
                     System.out.printf("事件: %s, Pod: %s, 命名空间: %s%n", action, podName, namespace);
 
-                    // 可以根据 action 类型执行不同的逻辑
                     switch (action) {
                         case ADDED:
                             System.out.println("Pod 已创建: " + podName);
@@ -40,7 +38,6 @@ public class WatchPodEvents {
 
                 @Override
                 public void onClose(WatcherException cause) {
-                    // 监听器关闭时的处理逻辑
                     if (cause != null) {
                         System.err.println("监听器关闭，原因: " + cause.getMessage());
                     } else {
