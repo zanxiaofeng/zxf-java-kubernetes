@@ -6,6 +6,11 @@ metadata:
     app: zxf-java-memory-app
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   selector:
     matchLabels:
       app: zxf-java-memory-app
@@ -30,6 +35,15 @@ spec:
             limits:
               memory: "1Gi"
               cpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
       restartPolicy: Always
 ---
 apiVersion: v1
