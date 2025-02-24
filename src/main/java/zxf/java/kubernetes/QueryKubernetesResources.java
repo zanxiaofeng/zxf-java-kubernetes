@@ -1,7 +1,9 @@
 package zxf.java.kubernetes;
 
 import io.fabric8.kubernetes.api.model.*;
+import io.fabric8.kubernetes.api.model.apps.DeploymentList;
 import io.fabric8.kubernetes.client.*;
+import io.fabric8.kubernetes.client.Config;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,12 +15,32 @@ public class QueryKubernetesResources {
     public static void main(String[] args) {
         try (KubernetesClient client = new KubernetesClientBuilder().build()) {
             System.out.println("******************==============================================================================================================================================******************\n\n");
+            Config config = client.getConfiguration();
+
+            System.out.println("Cluster Server URL: " + config.getMasterUrl());
+            System.out.println("Cluster CA Certificate: " + config.getCaCertData());
+            System.out.println("Cluster Namespace: " + config.getNamespace());
+            System.out.println("Current Context: " + config.getCurrentContext());
+            System.out.println("Context Cluster: " + config.getCurrentContext().getContext().getCluster());
+            System.out.println("Context User: " + config.getCurrentContext().getContext().getUser());
+            System.out.println("Context Namespace: " + config.getCurrentContext().getContext().getNamespace());
+
+
+            System.out.println("******************==============================================================================================================================================******************\n");
             NodeList nodes = client.nodes().list();
             nodes.getItems().forEach(node -> System.out.println(nodeInfo(node) + "\n"));
 
             System.out.println("******************==============================================================================================================================================******************\n");
+            ResourceQuotaList resourceQuotas = client.resourceQuotas().list();
+            resourceQuotas.getItems().forEach(resourceQuota -> System.out.println(resourceQuota.toString() + "\n"));
+
+            System.out.println("******************==============================================================================================================================================******************\n");
             PodList pods = client.pods().inNamespace(DEFAULT_NAMESPACE).withLabel("app", "zxf-java-memory-app").list();
             pods.getItems().forEach(pod -> System.out.println(podInfo(pod) + "\n"));
+
+            System.out.println("******************==============================================================================================================================================******************\n");
+            DeploymentList deployments = client.apps().deployments().inNamespace(DEFAULT_NAMESPACE).list();
+            deployments.getItems().forEach(deployment -> System.out.println(deployment.toString() + "\n"));
 
             System.out.println("******************==============================================================================================================================================******************\n");
             ServiceList services = client.services().inNamespace(DEFAULT_NAMESPACE).list();
@@ -43,9 +65,9 @@ public class QueryKubernetesResources {
     }
 
     private static String podInfo(Pod pod) {
-        return String.format("Pod(name=%s/%s, owners=[%s], spec=(dnsPolicy=%s, nodeName=%s, restartPolicy=%s, containers=[%s]), status=(podIPs=%s, hostIPs=%s, qosClass=%s, phase=%s, startTime=%s, containerStatuses=[%s]))", pod.getMetadata().getName(), pod.getMetadata().getNamespace(),
+        return String.format("Pod(name=%s/%s, owners=[%s], spec=(dnsPolicy=%s, nodeName=%s, priorityClass=%s,restartPolicy=%s, containers=[%s]), status=(podIPs=%s, hostIPs=%s, qosClass=%s, phase=%s, startTime=%s, containerStatuses=[%s]))", pod.getMetadata().getName(), pod.getMetadata().getNamespace(),
                 pod.getMetadata().getOwnerReferences().stream().map(QueryKubernetesResources::ownerReferenceInfo).collect(Collectors.joining(ARRAY_JOINING)),
-                pod.getSpec().getDnsPolicy(), pod.getSpec().getNodeName(), pod.getSpec().getRestartPolicy(),
+                pod.getSpec().getDnsPolicy(), pod.getSpec().getNodeName(), pod.getSpec().getPriorityClassName(), pod.getSpec().getRestartPolicy(),
                 pod.getSpec().getContainers().stream().map(QueryKubernetesResources::containerInfo).collect(Collectors.joining(ARRAY_JOINING)),
                 pod.getStatus().getPodIPs().stream().map(PodIP::getIp).collect(Collectors.joining(ARRAY_JOINING)),
                 pod.getStatus().getHostIPs().stream().map(HostIP::getIp).collect(Collectors.joining(ARRAY_JOINING)),
